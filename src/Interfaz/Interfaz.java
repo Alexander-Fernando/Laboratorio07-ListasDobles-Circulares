@@ -1,10 +1,8 @@
 package Interfaz;
 
 
-import java.util.Arrays;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
 import laboratorio_07ed.Empleado;
 import laboratorio_07ed.ListaEmpleados;
 import laboratorio_07ed.NodoEmpleado;
@@ -12,6 +10,7 @@ import laboratorio_07ed.NodoEmpleado;
 public class Interfaz extends javax.swing.JFrame {
 
     ListaEmpleados lista = new ListaEmpleados();
+
     
     
     
@@ -24,8 +23,10 @@ public class Interfaz extends javax.swing.JFrame {
             deshabilitar();
         }
     }
-
     
+    
+
+    /*MÉTODOS ADICIONALES*/
     public void deshabilitar(){
         BotonConsultar.setEnabled(false);
         BotonEliminar.setEnabled(false);
@@ -86,6 +87,11 @@ public class Interfaz extends javax.swing.JFrame {
         habilitar();
         VaciarInputs();
         
+
+        TextTotalSueldos.setText(Double.toString(MontoTotalSueldos()));
+        TextDescImpuestos.setText(Double.toString(MontoTotalImpuestos()));
+        ComisionesVentas.setText(Double.toString(MontoTotalComision()));
+        DescuentosSeguros.setText(Integer.toString(MontoTotalSeguro()));
     }
     
     public void LimpiarFilasTabla(DefaultTableModel model){
@@ -94,6 +100,61 @@ public class Interfaz extends javax.swing.JFrame {
                 model.removeRow(0);
             }
     }
+    
+    public double MontoTotalSueldos(){
+        NodoEmpleado recorrer = lista.inicio;
+        double total = 0;
+        
+        while(recorrer!=null){
+            total = total + recorrer.dato.sueldoNeto;
+            recorrer = recorrer.siguiente;
+        }
+        
+        return (double)Math.round(total*100d)/100d; 
+    }
+    
+    public double MontoTotalComision(){
+        NodoEmpleado recorrer = lista.inicio;
+        double total = 0;
+        
+        while(recorrer!=null){
+            total = total + recorrer.dato.comision;
+            recorrer = recorrer.siguiente;
+        }
+        
+        return (double)Math.round(total*100d)/100d; 
+    }
+    
+    
+    public int MontoTotalSeguro(){
+        NodoEmpleado recorrer = lista.inicio;
+        int total = 0;
+        
+        while(recorrer!=null){
+            total = total + recorrer.dato.descSeguro;
+            recorrer = recorrer.siguiente;
+        }
+        
+        return total;
+    }
+    
+    public double MontoTotalImpuestos(){
+        NodoEmpleado recorrer = lista.inicio;
+        double total = 0;
+        
+        while(recorrer!=null){
+            total = total + recorrer.dato.descImpuestos;
+            recorrer = recorrer.siguiente;
+        }
+        
+        return (double)Math.round(total*100d)/100d; 
+    }
+    
+    
+    
+    
+    
+    
     /*CREACIÓN DE TODOS LOS COMPONENTES DE LA INTERFAZ GRÁFICA*/
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -355,6 +416,9 @@ public class Interfaz extends javax.swing.JFrame {
     
     
     
+    
+    
+    
     /*CONTROLADORES*/
     
     
@@ -370,7 +434,6 @@ public class Interfaz extends javax.swing.JFrame {
         // TODO add your handling code here:
         String estadoCivil = (String)btnEstadoCivil.getSelectedItem();
         System.out.println(estadoCivil);
-        
     }//GEN-LAST:event_btnEstadoCivilActionPerformed
 
     private void TextApMaternoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_TextApMaternoActionPerformed
@@ -392,7 +455,7 @@ public class Interfaz extends javax.swing.JFrame {
                 
                 
                 if(!(SueldoBase<0 || ventas<0 || numHijos<0)){
-                     double comision = (0.05)*ventas;
+                    double comision = (0.05)*ventas;
                     int descuentoSeguro=0;
                 
                     if("SOLTERO".equals(EstCivil)){
@@ -420,12 +483,13 @@ public class Interfaz extends javax.swing.JFrame {
                         DescuentoImpuesto = (0.06)*TA;
                     }
 
-
                     double SueldoNeto = SueldoBase + comision - descuentoSeguro -DescuentoImpuesto; 
                     SueldoNeto = (double)Math.round(SueldoNeto*100d)/100d;
                     
-                    Empleado newEmpleado = new Empleado(nombres, ApMaterno, ApPaterno, SueldoBase, ventas, EstCivil, numHijos, SueldoNeto);
+                    Empleado newEmpleado = new Empleado(nombres, ApMaterno, ApPaterno, SueldoBase, ventas, EstCivil, numHijos, SueldoNeto, comision, descuentoSeguro, DescuentoImpuesto);
                     lista.agregarAlInicio(newEmpleado);
+                    
+
                     mostrarEmpleadosTabla();
                     
                 }else{
@@ -530,8 +594,9 @@ public class Interfaz extends javax.swing.JFrame {
                     double SueldoNeto = SueldoBase + comision - descuentoSeguro -DescuentoImpuesto; 
                     SueldoNeto = (double)Math.round(SueldoNeto*100d)/100d;
                     
-                    Empleado newEmpleado = new Empleado(nombres, ApMaterno, ApPaterno, SueldoBase, ventas, EstCivil, numHijos, SueldoNeto);
+                    Empleado newEmpleado = new Empleado(nombres, ApMaterno, ApPaterno, SueldoBase, ventas, EstCivil, numHijos, SueldoNeto, comision, descuentoSeguro, DescuentoImpuesto);
                     lista.agregarAlFinal(newEmpleado);
+
                     mostrarEmpleadosTabla();
                     
                 }else{
