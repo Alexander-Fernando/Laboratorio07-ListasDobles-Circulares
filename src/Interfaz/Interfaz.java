@@ -10,7 +10,7 @@ import laboratorio_07ed.NodoEmpleado;
 public class Interfaz extends javax.swing.JFrame {
 
     ListaEmpleados lista = new ListaEmpleados();
-
+    NodoEmpleado pFound; 
     
     
     
@@ -149,10 +149,107 @@ public class Interfaz extends javax.swing.JFrame {
         
         return (double)Math.round(total*100d)/100d; 
     }
+     
     
+    public void Busqueda(ListaEmpleados l){
+        String nombre = JOptionPane.showInputDialog("Digite el nombre del empelado a buscar: ");
+        
+        if(nombre.equalsIgnoreCase("")){
+            JOptionPane.showMessageDialog(this, "Ingrese el nombre.");
+        }else{
+            pFound = buscar(l.inicio, nombre);
+            if(pFound != null){
+                JOptionPane.showMessageDialog(null, "Datos del empleado: \n" + 
+                        "Nombres: " + pFound.dato.nombres + "\n" +
+                        "Apellidos: " + pFound.dato.apPat +" " + pFound.dato.apMat + " \n" +
+                        "Estado Civil: " + pFound.dato.estadoCivil + "\n" + 
+                        "Comision: " + pFound.dato.comision +"\n" + 
+                        "Desc. Impuestos: " + pFound.dato.descImpuestos + "\n" +
+                        "Desc. Seguro: " + pFound.dato.descSeguro + "\n" + 
+                        "Número hijos: " + pFound.dato.numHijos + "\n" +
+                        "Sueldo Base: " + pFound.dato.sueldoBase + "\n" +
+                        "Ventas realizadas: " + pFound.dato.ventasRea  + "\n" + 
+                        "Sueldo neto: " + pFound.dato.sueldoNeto + "\n"
+                        ,"Datos del Empleado", JOptionPane.INFORMATION_MESSAGE);
+            }else{
+                JOptionPane.showMessageDialog(this, "El empleado con ese nombre no se encuentra en al lista", "Empleado no encontrado", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+           
+    }
     
+    NodoEmpleado buscar(NodoEmpleado inicio, String nombre){
+        NodoEmpleado pos = lista.inicio;
+        while(pos!=null && !nombre.equalsIgnoreCase(pos.dato.nombres)){
+            pos = pos.siguiente;
+        }
+        
+        return pos;
+    }
     
-    
+    public void ActualizarEmpleado(){
+        String nombre = JOptionPane.showInputDialog("Nombre empleado a editar");
+        if(nombre.equalsIgnoreCase("")){
+            JOptionPane.showMessageDialog(null, "Ingrese el nombre");
+        }else{
+            pFound = buscar(lista.inicio, nombre);
+            if(pFound != null){
+                
+                String newNombre = JOptionPane.showInputDialog("Nuevo nombre: ");
+                String newApPat = JOptionPane.showInputDialog("Nuevo Apellido Paterno: ");
+                String newApMat = JOptionPane.showInputDialog("Nuevo Apellido Materno: ");
+                Double newSueldoBase = Double.parseDouble(JOptionPane.showInputDialog("Nuevo sueldo base: "));
+                Double newVentas = Double.parseDouble(JOptionPane.showInputDialog("Nuevo ventas realizadas: "));
+                String NewEstCivil =  JOptionPane.showInputDialog("Nuevo Estado Civil: ").toUpperCase();
+                int    newNumHijos = Integer.parseInt(JOptionPane.showInputDialog("Nuevo Número hijos"));
+                
+                if(!(newSueldoBase<0 || newVentas<0 || newNumHijos<0)){
+                    double newComision = (0.05)*newVentas;
+                    int newDescuentoSeguro = 0;
+                
+                    if("SOLTERO".equals(NewEstCivil)){
+                        newDescuentoSeguro = 100;
+                    }
+
+                    if("CASADO".equals(NewEstCivil) & newNumHijos == 0){
+                        newDescuentoSeguro = 120;
+                    }
+
+                    if("CASADO".equals(NewEstCivil) & newNumHijos != 0){
+                        newDescuentoSeguro = 50 + 70*newNumHijos;
+                    }
+
+                    double newTA = newSueldoBase + newComision;
+                    double newDescuentoImpuesto;
+
+                    if(newTA>=0 & newTA<1500){
+                        newDescuentoImpuesto = 0;
+                    }else if(newTA>=1500 & newTA<2300){
+                        newDescuentoImpuesto = (0.03)*newTA;
+                    }else if(newTA>=2300 & newTA<3000){
+                        newDescuentoImpuesto = (0.04)*newTA;
+                    }else{
+                        newDescuentoImpuesto = (0.06)*newTA;
+                    }
+
+
+                    double newSueldoNeto = newSueldoBase + newComision - newDescuentoSeguro -newDescuentoImpuesto; 
+                    newSueldoNeto = (double)Math.round(newSueldoNeto*100d)/100d;
+                    
+                    Empleado nuevoEmpleado = new Empleado(newNombre, newApMat, newApPat, newSueldoBase, newVentas, NewEstCivil, newNumHijos, newSueldoNeto, newComision, newDescuentoSeguro, newDescuentoImpuesto);
+                    pFound.dato = nuevoEmpleado;
+
+                    mostrarEmpleadosTabla();
+                }
+                        
+                        
+                
+            }else{
+                JOptionPane.showMessageDialog(this, "El empleado con ese nombre no se encuentra en al lista", "Empleado no encontrado", JOptionPane.ERROR_MESSAGE);
+            }
+            
+        }
+    }
     
     
     /*CREACIÓN DE TODOS LOS COMPONENTES DE LA INTERFAZ GRÁFICA*/
@@ -278,6 +375,11 @@ public class Interfaz extends javax.swing.JFrame {
         Jpanel1.add(BotonConsultar, new org.netbeans.lib.awtextra.AbsoluteConstraints(600, 230, 100, -1));
 
         BotonActualizar.setText("Actualizar");
+        BotonActualizar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                BotonActualizarActionPerformed(evt);
+            }
+        });
         Jpanel1.add(BotonActualizar, new org.netbeans.lib.awtextra.AbsoluteConstraints(470, 230, 110, -1));
 
         BotonEliminar.setText("Eliminar Inicio");
@@ -510,6 +612,7 @@ public class Interfaz extends javax.swing.JFrame {
 
     private void BotonConsultarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BotonConsultarActionPerformed
         // TODO add your handling code here:
+        Busqueda(lista);
     }//GEN-LAST:event_BotonConsultarActionPerformed
 
     
@@ -614,6 +717,13 @@ public class Interfaz extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(null, "Re");
         }
     }//GEN-LAST:event_BotonGuardarFinalActionPerformed
+
+    private void BotonActualizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BotonActualizarActionPerformed
+        // TODO add your handling code here:
+        ActualizarEmpleado();
+        
+    
+    }//GEN-LAST:event_BotonActualizarActionPerformed
 
     
     
